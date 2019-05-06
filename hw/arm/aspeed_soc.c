@@ -239,6 +239,9 @@ static void aspeed_soc_init(Object *obj)
 
     sysbus_init_child_obj(obj, "gpio", OBJECT(&s->gpio), sizeof(s->gpio),
                            TYPE_ASPEED_GPIO);
+
+    sysbus_init_child_obj(obj, "pwm", OBJECT(&s->pwm), sizeof(s->pwm),
+                           TYPE_ASPEED_PWM);
 }
 
 static void aspeed_soc_realize(DeviceState *dev, Error **errp)
@@ -454,6 +457,15 @@ static void aspeed_soc_realize(DeviceState *dev, Error **errp)
     sysbus_connect_irq(SYS_BUS_DEVICE(&s->gpio), 0,
                        aspeed_soc_get_irq(s, ASPEED_GPIO));
 
+    /* PWM */
+    object_property_set_bool(OBJECT(&s->pwm), true, "realized", &err);
+    if (err) {
+        error_propagate(errp, err);
+        return;
+    }
+    sysbus_mmio_map(SYS_BUS_DEVICE(&s->pwm), 0, sc->info->memmap[ASPEED_PWM]);
+    sysbus_connect_irq(SYS_BUS_DEVICE(&s->pwm), 0,
+                       aspeed_soc_get_irq(s, ASPEED_PWM));
 }
 
 static void aspeed_soc_class_init(ObjectClass *oc, void *data)
