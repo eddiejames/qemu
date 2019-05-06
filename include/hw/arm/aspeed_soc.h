@@ -18,6 +18,7 @@
 #include "hw/adc/aspeed_adc.h"
 #include "hw/misc/aspeed_sdmc.h"
 #include "hw/timer/aspeed_timer.h"
+#include "hw/timer/aspeed_rtc.h"
 #include "hw/i2c/aspeed_i2c.h"
 #include "hw/ssi/aspeed_smc.h"
 #include "hw/watchdog/wdt_aspeed.h"
@@ -38,6 +39,7 @@ typedef struct AspeedSoCState {
     AspeedI2CState i2c;
     AspeedSCUState scu;
     AspeedADCState adc;
+    AspeedRtcState rtc;
     AspeedSMCState fmc;
     AspeedSMCState spi[ASPEED_SPIS_NUM];
     AspeedSDMCState sdmc;
