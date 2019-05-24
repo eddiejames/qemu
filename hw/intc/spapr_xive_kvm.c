@@ -80,6 +80,12 @@ static void kvmppc_xive_cpu_set_state(XiveTCTX *tctx, Error **errp)
     /* word0 and word1 of the OS ring. */
     state[0] = *((uint64_t *) &tctx->regs[TM_QW1_OS]);
 
+    /*
+     * OS CAM line. Used by KVM to print out the VP identifier. This
+     * is for debug only.
+     */
+    state[1] = *((uint64_t *) &tctx->regs[TM_QW1_OS + TM_WORD2]);
+
     ret = kvm_set_one_reg(tctx->cs, KVM_REG_PPC_VP_STATE, state);
     if (ret != 0) {
         error_setg_errno(errp, errno,
@@ -109,6 +115,14 @@ void kvmppc_xive_cpu_get_state(XiveTCTX *tctx, Error **errp)
 
     /* word0 and word1 of the OS ring. */
     *((uint64_t *) &tctx->regs[TM_QW1_OS]) = state[0];
+
+    /*
+     * KVM also returns word2 containing the OS CAM line which is
+     * interesting to print out in the QEMU monitor.
+     *
+     * TODO: clarify interface to retrieve OS CAM line
+     */
+    *((uint64_t *) &tctx->regs[TM_QW1_OS + TM_WORD2]) = state[1];
 }
 
 typedef struct {

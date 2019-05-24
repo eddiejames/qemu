@@ -369,7 +369,31 @@ static void spapr_irq_cpu_intc_create_xive(SpaprMachineState *spapr,
 
 static int spapr_irq_post_load_xive(SpaprMachineState *spapr, int version_id)
 {
-    return spapr_xive_post_load(spapr->xive, version_id);
+    CPUState *cs;
+    int ret;
+
+    ret = spapr_xive_post_load(spapr->xive, version_id);
+    if (ret) {
+        return ret;
+    }
+
+    /*
+     * When the states are collected from the KVM XIVE device, word2
+     * of the XiveTCTX is set to print out the OS CAM line under the
+     * QEMU monitor.
+     *
+     * This breaks the migration on a TCG guest (or on KVM with
+     * kernel_irqchip=off) because the matching algorithm of the
+     * presenter relies on the OS CAM value. Fix with an extra reset
+     * of the thread contexts to restore the expected value.
+     */
+    CPU_FOREACH(cs) {
+        PowerPCCPU *cpu = POWERPC_CPU(cs);
+
+        /* (TCG) Set the OS CAM line of the thread interrupt context. */
+        spapr_xive_set_tctx_os_cam(spapr_cpu_state(cpu)->tctx);
+    }
+    return 0;
 }
 
 static void spapr_irq_reset_xive(SpaprMachineState *spapr, Error **errp)
