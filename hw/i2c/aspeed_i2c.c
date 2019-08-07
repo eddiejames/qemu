@@ -24,6 +24,7 @@
 #include "qemu/module.h"
 #include "hw/i2c/aspeed_i2c.h"
 #include "hw/misc/aspeed_scu.h"
+#include "trace.h"
 
 /* I2C Global Register */
 
@@ -227,6 +228,8 @@ static int aspeed_i2c_bus_send(AspeedI2CBus *bus)
     int ret = -1;
     int i;
 
+trace_aspeed_i2c_bus_send(bus->buf_ctrl);
+
     if (bus->cmd & I2CD_TX_BUFF_ENABLE) {
         for (i = 0; i < I2CD_BUF_TX_COUNT(bus->buf_ctrl); i++) {
             uint8_t *buf_base = bus->controller->i2c_bus_buf_base(bus);
@@ -286,6 +289,8 @@ static void aspeed_i2c_bus_handle_cmd(AspeedI2CBus *bus, uint64_t value)
 {
     bus->cmd &= ~0xFFFF;
     bus->cmd |= value & 0xFFFF;
+
+trace_aspeed_i2c_bus_handle_cmd(bus->cmd);
 
     if (bus->cmd & I2CD_M_START_CMD) {
         uint8_t data;
@@ -395,6 +400,7 @@ static void aspeed_i2c_bus_write(void *opaque, hwaddr offset,
     case I2CD_BUF_CTRL_REG:
         bus->buf_ctrl &= ~0xffffff;
         bus->buf_ctrl |= (value & 0xffffff);
+trace_aspeed_i2c_bus_write_buf_ctrl(value);
         break;
 
     case I2CD_BYTE_BUF_REG:

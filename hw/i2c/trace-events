@@ -5,3 +5,7 @@
 i2c_event(const char *event, uint8_t address) "%s(addr:0x%02x)"
 i2c_send(uint8_t address, uint8_t data) "send(addr:0x%02x) data:0x%02x"
 i2c_recv(uint8_t address, uint8_t data) "recv(addr:0x%02x) data:0x%02x"
+
+aspeed_i2c_bus_handle_cmd(uint32_t data) "handle_cmd 0x%08x"
+aspeed_i2c_bus_send(uint32_t data) "send 0x%08x"
+aspeed_i2c_bus_write_buf_ctrl(uint64_t data) "buf_ctrl 0x%08lx"
